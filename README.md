@@ -47,9 +47,9 @@ import { MeasurementPaintStyles } from "ria-toolbox/libs/ruler3d/measurement/Mea
 
 The original source code is located in the `src` folder. Feel free to create a branch and modify it to suit your specific requirements. Make the changes you need and run the build script to generate the libs folder.
 
-### Upgrading to a New LuciadRIA Version?
+### Upgrading to a LuciadRIA Toolbox Version?
 
-If a new version of LuciadRIA is released and you wish to use the latest Toolkit, follow these steps:
+If a new version of LuciadRIA is released and you wish to use the latest Toolbox, follow these steps:
 
 1. **Create a Branch**: Start by branching this repository to keep your customizations separate.
 2. **Update Source**: Replace the entire contents of the `src` folder with the new official LuciadRIA toolbox libraries.
