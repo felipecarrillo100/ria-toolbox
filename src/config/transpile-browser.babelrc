@@ -1,0 +1,22 @@
+{
+ "presets": [
+   ["@babel/preset-env", {
+     "modules": false,
+     "targets": {
+       "browsers": [
+         "firefox esr",
+         "last 5 chrome versions",
+         "last 2 edge versions",
+         "last 2 safari versions"
+       ]
+     }
+   }],
+   "@babel/preset-typescript",
+   ["@babel/preset-react", {
+     "runtime": "automatic" // cf. https://legacy.reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html
+   }]
+ ],
+ "assumptions": {
+    "setPublicClassFields": true // avoid _defineProperty in transpiled code
+  },
+}

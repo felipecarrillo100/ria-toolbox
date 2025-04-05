@@ -1,0 +1,6 @@
+{
+ "presets": [
+   "@babel/preset-typescript"
+   // no need for @babel/preset-react, this is used to transpile TS sources down to JS sources, so it should preserve JSX
+ ]
+}

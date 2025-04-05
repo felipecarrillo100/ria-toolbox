@@ -1,0 +1,41 @@
+{
+  "name": "ria-toolbox",
+  "version": "2024.1.06",
+  "description": "Implements an easy to integrate LuciadRIA toolbox",
+  "files": [
+    "libs/"
+  ],
+  "scripts": {
+    "transpile": "tsc",
+    "watch": "tsc --watch",
+    "copyassets": "copyfiles -u 1 \"src/**/*.{js,css,scss,glb,gltf,svg,png,jpg}\" ./libs",
+    "copyfonts": "copyfiles -u 1 \"src/fonts/**\" ./libs",
+    "copyAll":"npm run copyassets && npm run copyfonts",
+    "clean": "rimraf ./libs",
+    "replacepaths": "node replace-paths.js",
+    "build": "npm run clean && npm run transpile && npm run replacepaths && npm run copyAll"
+  },
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "copyfiles": "^2.3.0",
+    "ts-loader": "^9.5.2",
+    "typescript": "^4.9.5",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1"
+  },
+  "dependencies": {
+    "bezier-easing": "2.1.0",
+    "html2canvas": "1.0.0",
+    "mp4-muxer": "5.1.5"
+  },
+  "peerDependencies": {
+    "@luciad/ria": ">=2024.1",
+    "react": ">=16.14.0",
+    "react-dom": ">=16.14.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/felipecarrillo100/ria-toolbox"
+  }
+}

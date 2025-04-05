@@ -1,0 +1,26 @@
+{
+  "name": "@luciad/ria-toolbox-core",
+  "version": "2024.1.6",
+  "description": "Common code that is used across multiple RIA samples",
+  "keywords": [],
+  "author": "",
+  "license": "SEE LICENSE IN LICENSE.TXT",
+  "scripts": {
+    "transpile-to-js": "transpile-sample-to-js",
+    "transpile-declarations": "tsc --outDir ./transpiled --declaration --emitDeclarationOnly",
+    "type-check": "tsc --noEmit"
+  },
+  "type": "module",
+  "exports": {
+    "./*": "./*"
+  },
+  "dependencies": {
+    "typescript": "5.6.3"
+  },
+  "devDependencies": {
+    "@luciad/ria-toolbox-config": "2024.1.6"
+  },
+  "peerDependencies": {
+    "@luciad/ria": "~2024.1.6"
+  }
+}

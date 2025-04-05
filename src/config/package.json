@@ -1,0 +1,47 @@
+{
+  "name": "@luciad/ria-toolbox-config",
+  "version": "2024.1.6",
+  "description": "Build script and configuration files that are used across all RIA samples",
+  "keywords": [],
+  "author": "",
+  "license": "SEE LICENSE IN LICENSE.TXT",
+  "bin": {
+    "transpile-sample-to-js": "bin/transpile-sample-to.js"
+  },
+  "scripts": {
+    "transpile-to-js": "transpile-sample-to-js",
+    "transpile-declarations": "tsc --outDir ./transpiled --declaration --emitDeclarationOnly",
+    "type-check": "tsc --noEmit"
+  },
+  "type": "module",
+  "exports": {
+    "./webpack.config": {
+      "import": "./webpack.config.js",
+      "require": "./webpack.config.cjs"
+    },
+    "./*": "./*"
+  },
+  "dependencies": {
+    "@babel/cli": "7.25.9",
+    "@babel/core": "7.26.0",
+    "@babel/preset-env": "7.26.0",
+    "@babel/preset-typescript": "7.26.0",
+    "@babel/preset-react": "7.24.1",
+    "core-js": "3.39.0",
+    "babel-loader": "9.2.1",
+    "copy-webpack-plugin": "12.0.2",
+    "css-loader": "7.1.2",
+    "glob": "9.3.3",
+    "html-webpack-plugin": "5.6.3",
+    "mini-css-extract-plugin": "2.9.2",
+    "terser-webpack-plugin": "5.3.10",
+    "typescript": "5.6.3",
+    "webpack": "5.97.0"
+  },
+  "peerDependencies": {
+    "@luciad/ria": "~2024.1.6"
+  },
+  "overrides": {
+    "@types/dom-webcodecs": "0.1.11"
+  }
+}

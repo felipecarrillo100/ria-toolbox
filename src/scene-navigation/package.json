@@ -1,0 +1,28 @@
+{
+  "name": "@luciad/ria-toolbox-scene-navigation",
+  "version": "2024.1.6",
+  "description": "3D navigation controller that can be used to navigate more precisely on a 3D LuciadRIA map when the camera is close to the data",
+  "keywords": [],
+  "author": "",
+  "license": "SEE LICENSE IN LICENSE.TXT",
+  "scripts": {
+    "transpile-to-js": "transpile-sample-to-js",
+    "transpile-declarations": "tsc --outDir ./transpiled --declaration --emitDeclarationOnly",
+    "type-check": "tsc --noEmit"
+  },
+  "type": "module",
+  "exports": {
+    "./*": "./*"
+  },
+  "dependencies": {
+    "@luciad/ria-toolbox-core": "2024.1.6",
+    "bezier-easing": "2.1.0",
+    "typescript": "5.6.3"
+  },
+  "devDependencies": {
+    "@luciad/ria-toolbox-config": "2024.1.6"
+  },
+  "peerDependencies": {
+    "@luciad/ria": "~2024.1.6"
+  }
+}

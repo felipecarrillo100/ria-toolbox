@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "es2020",
+    "lib": ["es6", "dom", "es2017"],
+    "jsx": "react",
+    "declaration": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictFunctionTypes": false,
+    "strictBindCallApply": false,
+    "strictPropertyInitialization": false,
+    "noImplicitThis": false,
+    "alwaysStrict": false,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./libs",
+    "baseUrl": "./",
+    "paths": {
+      "@luciad/ria-toolbox-*": ["src/*"]
+    }
+  },
+  "include": [
+    "./src/**/*"
+  ],
+  "exclude": [
+    "./node_modules",
+    "./src/**/*.test.ts",
+    "./babel.config.js"
+  ]
+}
