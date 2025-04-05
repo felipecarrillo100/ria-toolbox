@@ -43,10 +43,6 @@ import { MeasurementPaintStyles } from "@luciad/ria-toolbox-ruler3d/measurement/
 import { MeasurementPaintStyles } from "ria-toolbox/libs/ruler3d/measurement/Measurement";
 ```
 
-Here's an improved and more professional version of your text:
-
----
-
 ### Customization
 
 The original source code is located in the `src` folder. Feel free to create a branch and modify it to suit your specific requirements. Make the changes you need and run the build script to generate the libs folder.
