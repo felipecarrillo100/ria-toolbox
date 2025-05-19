@@ -90,9 +90,7 @@ export class TourRecorderSupport extends RecorderSupport {
 function getFileCoreName(pathName: string): string {
   const date = new Date();
   const core = pathName.replace(/ /g, '_') || 'tour';
-  // @ts-ignore
   const d1 = date.toLocaleDateString('en-GB', {dateStyle: 'short'});
-  // @ts-ignore
   const d2 = date.toLocaleTimeString('en-GB', {timeStyle: 'medium'});
   return `${core.toLocaleLowerCase()}_${d1}_${d2}`;
 }

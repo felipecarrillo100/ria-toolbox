@@ -23,12 +23,11 @@
 import {OGC3DTilesModel} from "@luciad/ria/model/tileset/OGC3DTilesModel.js";
 import {getReference} from "@luciad/ria/reference/ReferenceProvider.js";
 import {createPoint} from "@luciad/ria/shape/ShapeFactory.js";
-import {createTransformationFromGeoLocation} from "@luciad/ria/transformation/Affine3DTransformation.js";
+import {Affine3DTransformation, createTransformationFromGeoLocation} from "@luciad/ria/transformation/Affine3DTransformation.js";
 import {TileSet3DLayer} from "@luciad/ria/view/tileset/TileSet3DLayer.js";
 import {ReferenceType} from "@luciad/ria/reference/ReferenceType.js";
 import {Map} from "@luciad/ria/view/Map.js";
 import {CoordinateReference} from "@luciad/ria/reference/CoordinateReference.js";
-import {Transformation} from "@luciad/ria/transformation/Transformation.js";
 
 let counter = 0;
 
@@ -40,7 +39,7 @@ function getLayerName(url: string): string {
   return urlLabel || `OGC 3D${counter ? `-${++counter}` : ""}`;
 }
 
-function getGeoLocationTransformation(model: OGC3DTilesModel, mapReference: CoordinateReference, logInfo: (infoMessage: string) => void): Transformation|undefined {
+function getGeoLocationTransformation(model: OGC3DTilesModel, mapReference: CoordinateReference, logInfo: (infoMessage: string) => void): Affine3DTransformation | undefined {
   if (model.reference.referenceType == ReferenceType.CARTESIAN && mapReference.referenceType != ReferenceType.CARTESIAN) {
     //If the model is not georeferenced, we give it a default location on the globe
     logInfo(

@@ -36,6 +36,5 @@ const overviewMap = overviewSupport.overviewMap;
 overviewMap.layerTree.addLayer(aLayer);
 
 // Modify the length of the visualized frustum to 60 pixels
-const cameraPainter = overviewMap.cameraLayer.painter as CameraLocationPainter;
-cameraPainter.frustumIconSize = 60;
+overviewMap.cameraFrustumLayer.painter.frustumIconSize = 60;
 ```

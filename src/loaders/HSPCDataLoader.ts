@@ -23,7 +23,7 @@
 import {HSPCTilesModel} from "@luciad/ria/model/tileset/HSPCTilesModel.js";
 import {getReference} from "@luciad/ria/reference/ReferenceProvider.js";
 import {createPoint} from "@luciad/ria/shape/ShapeFactory.js";
-import {createTransformationFromGeoLocation} from "@luciad/ria/transformation/Affine3DTransformation.js";
+import {Affine3DTransformation, createTransformationFromGeoLocation} from "@luciad/ria/transformation/Affine3DTransformation.js";
 import {ScalingMode} from "@luciad/ria/view/style/ScalingMode.js";
 import {TileSet3DLayer} from "@luciad/ria/view/tileset/TileSet3DLayer.js";
 import {CoordinateReference} from "@luciad/ria/reference/CoordinateReference.js";
@@ -42,7 +42,7 @@ function getLayerName(url: string): string {
   return urlLabel || "HSPC" + (counter ? "-" + ++counter : "");
 }
 
-function getGeoLocationTransformation(modelReference: CoordinateReference, mapReference: CoordinateReference, logInfo: (infoMessage: string) => void): Transformation | undefined {
+function getGeoLocationTransformation(modelReference: CoordinateReference, mapReference: CoordinateReference, logInfo: (infoMessage: string) => void): Affine3DTransformation | undefined {
   if (modelReference.referenceType == ReferenceType.CARTESIAN && mapReference.referenceType != ReferenceType.CARTESIAN) {
     //If the model is not georeferenced, we give it a default location on the globe
     logInfo(

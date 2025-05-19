@@ -258,8 +258,7 @@ function autoRenewSession(googleInfo: GoogleInfo, model: OGC3DTilesModel,
   const validUntil: number = googleInfo.validUntil;
   // 10s before it expires, we start the session renewal
   const validTimeInMs: number = (validUntil - currentTime) - 10000;
-  // @ts-ignore
-  return setTimeout(renewSession.bind(null, googleInfo, model, options), validTimeInMs);
+  return setTimeout(renewSession.bind(null, googleInfo, model, options), validTimeInMs) as any;
 }
 
 async function renewSession(googleInfo: GoogleInfo, model: OGC3DTilesModel,

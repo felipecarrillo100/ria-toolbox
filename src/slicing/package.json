@@ -1,6 +1,6 @@
 {
   "name": "@luciad/ria-toolbox-slicing",
-  "version": "2024.1.6",
+  "version": "2024.1.7",
   "description": "3D-tiles slicing tool that can be used on a LuciadRIA map",
   "keywords": [],
   "author": "",
@@ -15,15 +15,15 @@
     "./*": "./*"
   },
   "dependencies": {
-    "@luciad/ria-toolbox-controller": "2024.1.6",
-    "@luciad/ria-toolbox-core": "2024.1.6",
-    "@luciad/ria-toolbox-geolocation": "2024.1.6",
+    "@luciad/ria-toolbox-controller": "2024.1.7",
+    "@luciad/ria-toolbox-core": "2024.1.7",
+    "@luciad/ria-toolbox-geolocation": "2024.1.7",
     "typescript": "5.6.3"
   },
   "devDependencies": {
-    "@luciad/ria-toolbox-config": "2024.1.6"
+    "@luciad/ria-toolbox-config": "2024.1.7"
   },
   "peerDependencies": {
-    "@luciad/ria": "~2024.1.6"
+    "@luciad/ria": "~2024.1.7"
   }
 }

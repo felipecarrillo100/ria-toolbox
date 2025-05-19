@@ -1,6 +1,6 @@
 {
   "name": "@luciad/ria-toolbox-core",
-  "version": "2024.1.6",
+  "version": "2024.1.7",
   "description": "Common code that is used across multiple RIA samples",
   "keywords": [],
   "author": "",
@@ -18,9 +18,9 @@
     "typescript": "5.6.3"
   },
   "devDependencies": {
-    "@luciad/ria-toolbox-config": "2024.1.6"
+    "@luciad/ria-toolbox-config": "2024.1.7"
   },
   "peerDependencies": {
-    "@luciad/ria": "~2024.1.6"
+    "@luciad/ria": "~2024.1.7"
   }
 }

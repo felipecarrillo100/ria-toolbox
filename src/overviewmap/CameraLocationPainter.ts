@@ -20,16 +20,12 @@
  * OR INABILITY TO USE SOFTWARE, EVEN IF LUCIAD HAS BEEN ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGES.
  */
-import {createFrustum} from "@luciad/ria-toolbox-core/util/IconFactory.js";
 import {FeaturePainter} from "@luciad/ria/view/feature/FeaturePainter.js";
 import {IconStyle, ImageIconStyle} from "@luciad/ria/view/style/IconStyle.js";
 import {GeoCanvas} from "@luciad/ria/view/style/GeoCanvas.js";
-import {Point} from "@luciad/ria/shape/Point.js";
-import {DEG2RAD} from "@luciad/ria-toolbox-core/util/Math.js";
-import {CameraFeature} from "./CameraLayer.js";
+import {CameraFeature} from "./types.js";
 
 const DEFAULT_CAMERA_ICON_SIZE = 24;
-const DEFAULT_FRUSTUM_ICON_SIZE = 80;
 
 /**
  * The constructor options for `CameraLocationPainter`.
@@ -40,32 +36,23 @@ export interface CameraLocationPainterConstructorOptions {
    * @default 24 pixels
    */
   cameraIconSize?: number;
-  /**
-   * The size of the camera frustum icon.
-   * @default 80 pixels
-   */
-  frustumIconSize?: number;
 }
 
 /**
  * The `CameraLocationPainter` class provides custom painting functionalities
- * to handle the rendering of camera visuals and the 2D frustum on the overview map.
+ * to handle the rendering of camera position on the overview map.
  *
- * Users can configure the default size of camera and frustum and can optionally override default drawing methods
+ * Users can configure the default size of camera and can optionally override default drawing methods
  * for a custom visual representation.
  */
 export class CameraLocationPainter extends FeaturePainter {
   private _cameraIconSize = 24;
   private _cameraIconStyle: IconStyle;
-  private _frustumIconSize = 80;
-  private _frustumIconStyle: IconStyle;
 
-  constructor({cameraIconSize, frustumIconSize}: CameraLocationPainterConstructorOptions = {}) {
+  constructor({cameraIconSize}: CameraLocationPainterConstructorOptions = {}) {
     super();
     this._cameraIconSize = cameraIconSize ?? DEFAULT_CAMERA_ICON_SIZE;
     this._cameraIconStyle = createCameraIconStyle(this._cameraIconSize);
-    this._frustumIconSize = frustumIconSize ?? DEFAULT_FRUSTUM_ICON_SIZE;
-    this._frustumIconStyle = createFrustumIconStyle(this._frustumIconSize);
   }
 
   /**
@@ -88,79 +75,17 @@ export class CameraLocationPainter extends FeaturePainter {
   }
 
   /**
-   * Gets the size of the frustum icon.
-   */
-  get frustumIconSize() {
-    return this._frustumIconSize;
-  }
-
-  /**
-   * Sets the size of the frustum icon.
-   * @param size - The desired size of the frustum icon.
-   */
-  set frustumIconSize(size: number) {
-    if (this._frustumIconSize !== size) {
-      this._frustumIconSize = size;
-      this._frustumIconStyle = createFrustumIconStyle(this._frustumIconSize);
-      this.invalidateAll();
-    }
-  }
-
-  override paintBody(geoCanvas: GeoCanvas, feature: CameraFeature) {
-    const {heading, fov} = feature.properties;
-
-    this.drawCameraFrustum(geoCanvas, feature.shape, heading, fov);
-    this.drawCameraPoint(geoCanvas, feature.shape, heading);
-  }
-
-  /**
-   * Draws the visualization of the camera frustum.
-   * Users may override this method to provide a custom implementation for rendering the camera frustum representation.
-   * @param geoCanvas - The GeoCanvas instance used to draw the frustum icon.
-   * @param point - The point at which the frustum is to be drawn.
-   * @param heading - The heading direction of the frustum.
-   * @param fov - The field of view in degrees of the frustum.
-   */
-  drawCameraFrustum(geoCanvas: GeoCanvas, point: Point, heading: number, fov: number) {
-    if (this._frustumIconStyle.heading !== heading) {
-      this._frustumIconStyle.heading = heading;
-    }
-    const newBase = 2 * this._frustumIconSize * Math.tan(fov / 2 * DEG2RAD);
-    const percentageChange = newBase / this._frustumIconSize * 100;
-
-    this._frustumIconStyle.height = `${percentageChange}%`;
-    geoCanvas.drawIcon(point, this._frustumIconStyle);
-  }
-
-  /**
    * Draws the visual representation of the camera at a given point.
-   *
    * Users may override this method to provide a custom implementation for rendering the camera representation.
-   *
-   * @param geoCanvas - The GeoCanvas instance used to draw the camera icon.
-   * @param point - The point at which the camera should be drawn.
-   * @param heading - The heading direction of the camera.
+   * @param geoCanvas - The GeoCanvas instance used to draw the frustum icon.
+   * @param feature - The camera feature.
    */
-  drawCameraPoint(geoCanvas: GeoCanvas, point: Point, heading: number) {
+  override paintBody(geoCanvas: GeoCanvas, feature: CameraFeature) {
+    const {heading} = feature.properties;
     if (this._cameraIconStyle.heading !== heading) {
       this._cameraIconStyle.heading = heading;
     }
-    geoCanvas.drawIcon(point, this._cameraIconStyle);
-  }
-}
-
-function createFrustumIconStyle(size: number): ImageIconStyle {
-  return {
-    image: createFrustum({
-      size, colorStroke: 'rgba(80,155,133,1)',
-      fillColor0: 'rgba(80,155,133,0.95)',
-      fillColor1: 'rgba(80,155,133,0)'
-    }),
-    anchorX: `0px`,
-    anchorY: `${(size / 2)}px`,
-    heading: 0,
-    rotation: -90,
-    zOrder: 1
+    geoCanvas.drawIcon(feature.shape, this._cameraIconStyle);
   }
 }
 

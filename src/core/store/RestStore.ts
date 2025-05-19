@@ -239,8 +239,7 @@ export class RestStore extends EventedSupport implements Store {
     }
 
     const self = this;
-    // @ts-ignore
-    return fetch(this._target + bustCache(query), {
+    return fetch(this._target + bustCache(query as string), {
       method: "GET",
       headers,
       credentials: "same-origin",

@@ -21,12 +21,11 @@
  * POSSIBILITY OF SUCH DAMAGES.
  */
 import {WebGLMap} from "@luciad/ria/view/WebGLMap.js";
-import {createCameraLayer} from "./CameraLayer.js";
+import {createCameraLayers} from "./CameraLayersFactory.js";
 import {getReference} from "@luciad/ria/reference/ReferenceProvider.js";
 import {Handle} from "@luciad/ria/util/Evented.js";
 import {PerspectiveCamera} from "@luciad/ria/view/camera/PerspectiveCamera.js";
 import {EventedSupport} from "@luciad/ria/util/EventedSupport.js";
-import {FeatureLayer} from "@luciad/ria/view/feature/FeatureLayer.js";
 import {DefaultController} from "@luciad/ria/view/controller/DefaultController.js";
 import {NavigateController} from "@luciad/ria/view/controller/NavigateController.js";
 import {ZoomController} from "@luciad/ria/view/controller/ZoomController.js";
@@ -34,6 +33,7 @@ import {GestureEvent} from "@luciad/ria/view/input/GestureEvent.js";
 import {createPoint} from "@luciad/ria/shape/ShapeFactory.js";
 import {Point} from "@luciad/ria/shape/Point.js";
 import {PanController} from "@luciad/ria/view/controller/PanController.js";
+import {OverviewCameraLayer, OverviewFrustumLayer} from "./types.js";
 
 const EVENT_SYNC_MAP_CENTER = 'SyncMapCenter';
 
@@ -103,7 +103,8 @@ export class OverviewMapPanController extends PanController {
 export class OverviewMapSupport {
   private readonly _eventedSupport = new EventedSupport([EVENT_SYNC_MAP_CENTER], true);
   private readonly _overviewMap: WebGLMap;
-  private readonly _cameraLayer: FeatureLayer;
+  private readonly _cameraLayer: OverviewCameraLayer;
+  private readonly _cameraFrustumLayer: OverviewFrustumLayer;
   private readonly _defaultNavigationController: NavigateController;
   private readonly _mainMap: WebGLMap;
   private readonly _handles: Handle[] = [];
@@ -122,8 +123,10 @@ export class OverviewMapSupport {
     this._overviewMap = new WebGLMap(overviewMapDomNode, {reference: ref2d, autoAdjustDisplayScale: mainMap.autoAdjustDisplayScale});
     this._mainMap = mainMap;
 
-    const [cameraLayer, cameraHandle] = createCameraLayer(mainMap);
+    const {cameraLayer, cameraFrustumLayer, cameraHandle} = createCameraLayers(mainMap);
     this._cameraLayer = cameraLayer;
+    this._cameraFrustumLayer = cameraFrustumLayer;
+    this._overviewMap.layerTree.addChild(this._cameraFrustumLayer, "top");
     this._overviewMap.layerTree.addChild(this._cameraLayer, "top");
 
     this._overviewMap.mapNavigator.zoom({targetScale: mainMap.mapScale[0], animate: false});
@@ -179,10 +182,17 @@ export class OverviewMapSupport {
   }
 
   /**
-   * Gets the FeatureLayer responsible for displaying the camera position on the overview map.
+   * Gets {@link OverviewCameraLayer} responsible for displaying the camera position on the overview map.
    */
-  get cameraLayer(): FeatureLayer {
+  get cameraLayer(): OverviewCameraLayer {
     return this._cameraLayer;
+  }
+
+  /**
+   * Gets {@link OverviewFrustumLayer} responsible for displaying the camera frustum on the overview map.
+   */
+  get cameraFrustumLayer(): OverviewFrustumLayer {
+    return this._cameraFrustumLayer;
   }
 
   /**

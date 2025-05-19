@@ -1,6 +1,6 @@
 {
   "name": "@luciad/ria-toolbox-tour",
-  "version": "2024.1.6",
+  "version": "2024.1.7",
   "description": "Tour tool",
   "keywords": [],
   "author": "",
@@ -15,16 +15,16 @@
     "./*": "./*"
   },
   "dependencies": {
-    "@luciad/ria-toolbox-core": "2024.1.6",
-    "@luciad/ria-toolbox-controller": "2024.1.6",
-    "@luciad/ria-toolbox-player": "2024.1.6",
-    "@luciad/ria-toolbox-recorder": "2024.1.6",
+    "@luciad/ria-toolbox-core": "2024.1.7",
+    "@luciad/ria-toolbox-controller": "2024.1.7",
+    "@luciad/ria-toolbox-player": "2024.1.7",
+    "@luciad/ria-toolbox-recorder": "2024.1.7",
     "typescript": "5.6.3"
   },
   "devDependencies": {
-    "@luciad/ria-toolbox-config": "2024.1.6"
+    "@luciad/ria-toolbox-config": "2024.1.7"
   },
   "peerDependencies": {
-    "@luciad/ria": "~2024.1.6"
+    "@luciad/ria": "~2024.1.7"
   }
 }
