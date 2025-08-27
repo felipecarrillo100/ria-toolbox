@@ -77,10 +77,29 @@ type ColorAdjustmentReference = {
 }
 
 /**
+ * Makes a simple color expression that adjusts brightness, contrast and saturation.
+ * The parameter values are: 0 = no effect, <0 = less, >0 = more.
+ * Reasonable range is around -0.3 to +0.3.
+ * </p>
+ * You can also use <code>createColorAdjustement</code>, which allows more control using expression parameters.
+ *
+ * @since 2025.0
+ */
+export function createColorAdjustmentExpression(brightness: number, contrast: number, saturation: number, colorExpression?: Expression<Color>): Expression<Color> {
+  let expr = colorExpression ?? defaultColor();
+  expr = saturation ? mix(multiply(color('rgba(255, 255, 255, 1.0)'), dotProduct(expr, color("rgba(" + 0.2126 * 255 + ", " + 0.7152 * 255 + ", " + 0.0722 * 255 + ", 0.0)"))), expr, add(number(saturation), number(1.0))) : expr;
+  expr = contrast ? add(number(0.5), multiply(add(number(1.0), number(contrast)), add(expr, number(-0.5)))) : expr;
+  expr = brightness ? add(expr, number(brightness)) : expr;
+  return expr;
+}
+
+/**
  * Makes a color expression that adjusts brightness, contrast and saturation.
  * The brightness, contrast and saturation values are: 0 = no effect, <0 = less,
  * >0 = more.
  * Reasonable range is around -0.3 to +0.3.
+ * </p>
+ * You can also use <code>createColorAdjustementExpression</code> to make simple expression without parameters.
  */
 export function createColorAdjustment(
     brightness: number,

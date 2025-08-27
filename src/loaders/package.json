@@ -1,6 +1,6 @@
 {
   "name": "@luciad/ria-toolbox-loaders",
-  "version": "2024.1.7",
+  "version": "2025.0.1",
   "description": "Utility loaders for various services that LuciadRIA can consume",
   "keywords": [],
   "author": "",
@@ -15,15 +15,15 @@
     "./*": "./*"
   },
   "dependencies": {
-    "@luciad/ria-toolbox-controller": "2024.1.7",
-    "@luciad/ria-toolbox-core": "2024.1.7",
-    "@luciad/ria-toolbox-geolocation": "2024.1.7",
-    "typescript": "5.6.3"
+    "@luciad/ria-toolbox-controller": "2025.0.1",
+    "@luciad/ria-toolbox-core": "2025.0.1",
+    "@luciad/ria-toolbox-geolocation": "2025.0.1"
   },
   "devDependencies": {
-    "@luciad/ria-toolbox-config": "2024.1.7"
+    "@luciad/ria-toolbox-config": "2025.0.1",
+    "typescript": "5.8.3"
   },
   "peerDependencies": {
-    "@luciad/ria": "~2024.1.7"
+    "@luciad/ria": "~2025.0.1"
   }
 }

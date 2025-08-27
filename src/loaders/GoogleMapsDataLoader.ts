@@ -57,7 +57,6 @@ export const GoogleMapsDataLoader = {
     return new RasterTileSetLayer(googleMapsModel, {
       label: `${options.mapType} (Google)`,
       layerType: options.overlay ? LayerType.STATIC : LayerType.BASE,
-      id: options.overlay ? "Overlay" : "Background",
       detailFactor: detailFactor
     });
   },

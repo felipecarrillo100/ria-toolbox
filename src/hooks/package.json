@@ -1,6 +1,6 @@
 {
   "name": "@luciad/ria-toolbox-hooks",
-  "version": "2024.1.7",
+  "version": "2025.0.1",
   "description": "React hooks that are used across multiple RIA samples",
   "keywords": [],
   "author": "",
@@ -15,19 +15,18 @@
     "./*": "./*"
   },
   "dependencies": {
-    "@luciad/ria-toolbox-core": "2024.1.7",
-    "@luciad/ria-toolbox-loaders": "2024.1.7",
-    "@types/react": "18.3.13",
-    "@types/react-dom": "18.3.1",
-    "bloodhound-js": "1.2.3",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
-    "typescript": "5.6.3"
+    "@luciad/ria-toolbox-core": "2025.0.1",
+    "bloodhound-js": "1.2.3"
   },
   "devDependencies": {
-    "@luciad/ria-toolbox-config": "2024.1.7"
+    "@luciad/ria-toolbox-config": "2025.0.1",
+    "@types/react": "18.3.13",
+    "@types/react-dom": "18.3.1",
+    "typescript": "5.8.3"
   },
   "peerDependencies": {
-    "@luciad/ria": "~2024.1.7"
+    "@luciad/ria": "~2025.0.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   }
 }

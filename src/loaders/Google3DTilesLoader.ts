@@ -36,6 +36,8 @@ import GoogleLogoUrl from "./google_logo.png";
  */
 const GOOGLE_INFO = "GOOGLE_INFO";
 
+const ROOT_URL = "https://tile.googleapis.com/v1/3dtiles/root.json";
+
 /**
  * The time that a new session can remain active before expiring
  * From <a href="https://developers.google.com/maps/documentation/tile/3d-tiles"> the Google 3D tiles documentation</a>,
@@ -49,7 +51,6 @@ const TIME_SESSION_IS_VALID_MS: number = 3 * 60 * 60 * 1000;
 const REUSE_SESSION_IF_MORE_THAN_X_MIN_REMAINING_VALID = 5;
 
 interface GoogleInfo {
-  rootUrl: string,
   apiKey: string,
   sessionId: string,
   validUntil: number,
@@ -115,9 +116,9 @@ export const Google3DTilesLoader = {
    */
   createLayer: async (googleApiKey: string, options?: Google3DTilesLoaderOptions): Promise<TileSet3DLayer> => {
     //#endsnippet
-    const googleInfo = await getGoogleInfo(googleApiKey, options?.keepSession ?? false);
+    const googleInfo = await getGoogleInfo(googleApiKey, options?.keepSession ?? false, false);
     //#snippet ADD_GOOGLE_LOGO
-    return OGC3DTilesModel.create(googleInfo.rootUrl,
+    return OGC3DTilesModel.create(ROOT_URL,
         {requestParameters: {"key": googleInfo.apiKey, "session": googleInfo.sessionId}})
         .then(model => {
           model.getLogo = function(): string {
@@ -151,43 +152,6 @@ export const Google3DTilesLoader = {
           prepareMapForGoogle3DTiles(google3DTilesLayer, timeOut, options?.map);
           return google3DTilesLayer;
         });
-  },
-
-  /**
-   * Async function to check the validity of the Google API key
-   * @param googleApiKey your API key
-   */
-  validateGoogleAPIKey: async (googleApiKey: string): Promise<{
-    valid: boolean,
-    message: string
-  }> => {
-    const apiKeyFromStorage = Google3DTilesLoader.getAPIKeyFromLocalStorage();
-    if (apiKeyFromStorage === googleApiKey) {
-      return {valid: true, message: "Valid API key"};
-    }
-
-    const response = await fetch(`https://tile.googleapis.com/v1/3dtiles/root.json?key=${googleApiKey}`);
-    if (response.status !== 200) {
-      const errorMsg = (await response.json())["error"]["message"];
-      return {valid: false, message: errorMsg};
-    }
-    return {valid: true, message: "Valid API key"};
-  },
-
-  /**
-   * Function to get a previously used Google API key from localStorage
-   * Returns null if no key is present.
-   */
-  getAPIKeyFromLocalStorage(): string | null {
-    const inStorage = localStorage.getItem(GOOGLE_INFO);
-    if (inStorage) {
-      const googleInfo = JSON.parse(inStorage);
-      const validInfo = typeof googleInfo.apiKey !== "undefined";
-      if (validInfo) {
-        return googleInfo.apiKey;
-      }
-    }
-    return null;
   }
 }
 
@@ -258,7 +222,7 @@ function autoRenewSession(googleInfo: GoogleInfo, model: OGC3DTilesModel,
   const validUntil: number = googleInfo.validUntil;
   // 10s before it expires, we start the session renewal
   const validTimeInMs: number = (validUntil - currentTime) - 10000;
-  return setTimeout(renewSession.bind(null, googleInfo, model, options), validTimeInMs) as any;
+  return setTimeout(renewSession.bind(null, googleInfo, model, options), validTimeInMs) as unknown as number;
 }
 
 async function renewSession(googleInfo: GoogleInfo, model: OGC3DTilesModel,
@@ -266,7 +230,7 @@ async function renewSession(googleInfo: GoogleInfo, model: OGC3DTilesModel,
   if (!options?.autoRenew) {
     return;
   }
-  const renewedGoogleInfo = await getGoogleInfo(googleInfo.apiKey, options?.keepSession ?? false);
+  const renewedGoogleInfo = await getGoogleInfo(googleInfo.apiKey, options?.keepSession ?? false, true);
   model.requestParameters = {"key": renewedGoogleInfo.apiKey, "session": renewedGoogleInfo.sessionId};
   autoRenewSession(renewedGoogleInfo, model, options);
 }
@@ -276,48 +240,36 @@ async function renewSession(googleInfo: GoogleInfo, model: OGC3DTilesModel,
  * or get them through the Google API.
  *
  * @param apiKey the key needed to fetch the parameters (root and session)
- * @param useLocalStorage if using local storage is allowed
+ * @param useLocalStorage if using local storage is allowed. If you do not use local storage, reloading the page will start a new session.
+ * @param fetchNewSession if a new session needs to be requested. This only needs to be set to true when the old session is about to expire.
  * @return Session information
  * @throw Error if the key is invalid
  */
-async function getGoogleInfo(apiKey: string, useLocalStorage: boolean): Promise<GoogleInfo> {
-  if (useLocalStorage) {
+async function getGoogleInfo(apiKey: string, useLocalStorage: boolean, fetchNewSession: boolean): Promise<GoogleInfo> {
+  if (useLocalStorage && !fetchNewSession) {
     const inStorage = localStorage.getItem(GOOGLE_INFO);
     if (inStorage) {
       const googleInfo = JSON.parse(inStorage);
-      const validInfo = typeof googleInfo.apiKey !== "undefined" &&
-                        typeof googleInfo.rootUrl !== "undefined" &&
-                        typeof googleInfo.sessionId !== "undefined" &&
-                        typeof googleInfo.validUntil !== "undefined";
-      if (validInfo) {
-        const currentTime: number = new Date().getTime();
-        const validUntil: number = googleInfo.validUntil;
-        const validTimeInMinutes: number = Math.floor((validUntil - currentTime) / 1000 / 60);
-        const validSession = validUntil > currentTime &&
-                             validTimeInMinutes > REUSE_SESSION_IF_MORE_THAN_X_MIN_REMAINING_VALID;
-        if (validSession) {
-          console.log(
-              `Reusing the previous session id (${googleInfo.sessionId}), which is still valid for ${validTimeInMinutes} minutes.`);
-          return googleInfo;
-        }
+      if (isValidInfo(googleInfo) && isValidSession(googleInfo)) {
+        console.log(`Reusing the previous session id (${googleInfo.sessionId}), ` +
+                    `which is still valid until ${new Date(googleInfo.validUntil)}.`);
+        return googleInfo;
       }
     }
   }
 
-  const response = await fetch(`https://tile.googleapis.com/v1/3dtiles/root.json?key=${apiKey}`);
+  const fetchOptions = fetchNewSession ? { headers: { 'Cache-Control': 'no-store' } } : {};
+  const response = await fetch(`${ROOT_URL}?key=${apiKey}`, fetchOptions);
+  const jsonResponse = await response.json();
   if (response.status !== 200) {
-    const errorMsg = (await response.json())["error"]["message"];
+    const errorMsg = jsonResponse["error"]["message"];
     throw new Error("Cannot load Google 3D Tiles root tile: " + errorMsg);
   }
 
-  const jsonResponse = await response.json();
-  const rootWithSession = "https://tile.googleapis.com" +
-                          jsonResponse["root"]["children"][0]["children"][0]["content"]["uri"];
-  const rootUrl = rootWithSession.split('?')[0];
-  const sessionId = rootWithSession.split('=')[1];
+  const contentUri = jsonResponse["root"]["children"][0]["children"][0]["content"]["uri"];
+  const sessionId = contentUri.split('=')[1];
   const googleInfo: GoogleInfo = {
     apiKey,
-    rootUrl,
     sessionId,
     validUntil: new Date().getTime() + TIME_SESSION_IS_VALID_MS,
   }
@@ -327,4 +279,17 @@ async function getGoogleInfo(apiKey: string, useLocalStorage: boolean): Promise<
     localStorage.setItem(GOOGLE_INFO, JSON.stringify(googleInfo));
   }
   return googleInfo;
+}
+
+function isValidInfo(googleInfo: GoogleInfo): boolean {
+  return typeof googleInfo.apiKey !== "undefined" &&
+         typeof googleInfo.sessionId !== "undefined" &&
+         typeof googleInfo.validUntil !== "undefined";
+}
+
+function isValidSession(googleInfo: GoogleInfo): boolean {
+  const currentTime: number = new Date().getTime();
+  const validUntil: number = googleInfo.validUntil;
+  const validTimeInMinutes: number = Math.floor((validUntil - currentTime) / 1000 / 60);
+  return validUntil > currentTime && validTimeInMinutes > REUSE_SESSION_IF_MORE_THAN_X_MIN_REMAINING_VALID;
 }

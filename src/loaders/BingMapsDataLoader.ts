@@ -61,7 +61,6 @@ export const BingMapsDataLoader = {
           const rasterTileSetLayer = new RasterTileSetLayer(model, {
             label: `${type} (Bing)`,
             layerType: LayerType.BASE,
-            id: "Background",
             detailFactor: map?.displayScale || 1
           });
           setBingMapsDisplayScale(model, rasterTileSetLayer.detailFactor);

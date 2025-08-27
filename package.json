@@ -1,6 +1,6 @@
 {
   "name": "ria-toolbox",
-  "version": "2024.1.07",
+  "version": "2025.1.01",
   "description": "Implements an easy to integrate LuciadRIA toolbox",
   "files": [
     "libs/"
@@ -31,7 +31,7 @@
     "mp4-muxer": "5.1.5"
   },
   "peerDependencies": {
-    "@luciad/ria": ">=2024.1",
+    "@luciad/ria": ">=2025.0",
     "react": ">=16.14.0",
     "react-dom": ">=16.14.0"
   },

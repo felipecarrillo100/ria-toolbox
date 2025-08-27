@@ -41,10 +41,68 @@ const REFERENCE = createCartesianReference({
   yUnitOfMeasure: getUnitOfMeasure("Number")
 });
 
-function pad(str: number | string, max: number): string {
-  const result = str.toString();
-  return result.length < max ? pad(`0${result}`, max) : result;
+export const MILLISECOND = 0.001;
+export const SECOND = 1;
+export const MINUTE = 60 * SECOND;
+export const HOUR = 60 * MINUTE;
+export const DAY = 24 * HOUR;
+
+export const YEAR = 365.2425 * DAY;
+export const MONTH = YEAR / 12;
+
+const LOCALE = "en-US";
+
+const MAX_PIXEL_PER_SUB_TICK = 30;
+
+const AXIS_COLOR = "rgba(176, 179, 50, 1.0)";
+
+const LABEL_COLOR = "rgba(255, 255, 255, 1.0)";
+const SUB_TICK_LABEL_COLOR = "rgba(213,213,213,0.8)";
+
+const TICK_LINE_COLOR = "rgb(255,255,255)";
+const SUB_TICK_LINE_COLOR = AXIS_COLOR;
+
+const timeZone = "UTC";
+
+type DateFormater = {
+  longFormater: (date: Date) => string,
+  shortFormatter: (date: Date) => string,
 }
+
+/**
+ * Defines the string representation of time values.
+ */
+const ticksSpacingConfiguration :  Record<"millisecond" | "second" | "minute" | "hour" | "day" | "month" | "year", DateFormater> = {
+  millisecond: {
+    longFormater: (_date: Date) => "",
+    shortFormatter: (date: Date) => `.${(date.getMilliseconds())}`,
+  },
+  second: {
+    longFormater: (date: Date) => `${date.toLocaleString(LOCALE, {hour: "numeric" , hour12: false, minute: "numeric", second:"numeric", timeZone})}`,
+    shortFormatter: (date: Date) => `${date.toLocaleString(LOCALE, {second:"numeric", timeZone})}"`,
+  },
+  minute: {
+    longFormater: (date: Date) => `${date.toLocaleString(LOCALE, {hour: "numeric" , hour12: false, minute: "numeric", timeZone})}`,
+    shortFormatter: (date: Date) => `${date.toLocaleString(LOCALE, {minute: "numeric", timeZone})}'`,
+  },
+  hour: {
+    longFormater: (date: Date) => `${date.toLocaleString(LOCALE, {hour: "numeric" , hour12: false, timeZone})}`,
+    shortFormatter: (date: Date) => `${Number.parseInt(date.toLocaleString(LOCALE, {hour: "numeric" , hour12: false, timeZone}))}h`,
+  },
+  day: {
+    longFormater: (date: Date) => `${date.toLocaleString(LOCALE, {month: 'short', day: 'numeric', timeZone})}`,
+    shortFormatter: (date: Date) => `${date.toLocaleString(LOCALE, {day: 'numeric', timeZone})}th`,
+  },
+  month: {
+    longFormater: (date: Date) => `${date.toLocaleString(LOCALE, { month: 'long' })}`,
+    shortFormatter: (date: Date) => `${date.toLocaleString(LOCALE, { month: 'short'})}`,
+  },
+  year: {
+    longFormater: (date: Date) => `${date.toLocaleString(LOCALE, { year: 'numeric'})}`,
+    shortFormatter: (date: Date) => `${date.toLocaleString(LOCALE, { year: 'numeric'})}`,
+  }
+}
+
 
 /**
  * This component shows a timeline with labels, backed by a RIA map
@@ -88,22 +146,24 @@ export class Timeline implements Evented {
   constructor(domNode: HTMLElement, startTime: number, endTime: number, webgl: boolean, autoAdjustDisplayScale: boolean) {
     this._playing = false;
     this._frame = null;
-    const height = domNode.clientHeight;
+    const tickLength = 50;
+    const subTickLength = 10;
+
     this._eventedSupport = new EventedSupport(["CurrentTimeChange", "PlayingChange"]);
     const MapClass = webgl ? WebGLMap : Map;
     this._map = new MapClass(domNode, {
       reference: REFERENCE,
       border: {
-        bottom: 20
+        bottom: 50
       },
       autoAdjustDisplayScale: autoAdjustDisplayScale,
       axes: {
         xAxis: {
           axisLineStyle: {
-            color: "rgba(176, 179, 50, 1.0)",
+            color: AXIS_COLOR,
             width: 0
           },
-          gridLine: true,
+          gridLine: false,
           labelFormatter: (timestampInSeconds: number): string => {
             const date = new Date(timestampInSeconds * 1000);
             const mapBoundsArr = this._map.getMapBounds();
@@ -111,58 +171,127 @@ export class Timeline implements Evented {
               return "";
             }
             const visibleTimeRange = mapBoundsArr[0].width;
-            if (visibleTimeRange > 5 * 365 * 24 * 60 * 60) {
-              return date.getFullYear().toString();
+            if (visibleTimeRange >= YEAR) {
+              const roundDate = new Date(date.getTime() + DAY * 1000);
+              return ticksSpacingConfiguration.year.longFormater(roundDate);
             }
-            if (visibleTimeRange > 0.5 * 365 * 24 * 60 * 60) {
-              return `${pad(date.getMonth() + 1, 2)}/${date.getFullYear()}`;
+            if (visibleTimeRange >= MONTH) {
+              // If we are near the end of the month, we want to display the next month.
+              if (date.getDate() > 25) {
+                date.setMonth(date.getMonth()+1, 1);
+              }
+              return ticksSpacingConfiguration.month.longFormater(date);
             }
-            if (visibleTimeRange > 5 * 31 * 24 * 60 * 60) {
-              return `${pad(date.getDate(), 2)}/${pad(date.getMonth() + 1, 2)}/${date.getFullYear()}`;
+            if (visibleTimeRange >= DAY) {
+              return ticksSpacingConfiguration.day.longFormater(date);
             }
-            if (visibleTimeRange > 7 * 24 * 60 * 60) {
-              return `${pad(date.getDate(), 2)}/${pad(date.getMonth() + 1, 2)}`;
+            if (visibleTimeRange >= MINUTE) {
+              return ticksSpacingConfiguration.minute.longFormater(date);
             }
-            return `${pad(date.getHours(), 2)}:${pad(date.getMinutes(), 2)}`;
+            return ticksSpacingConfiguration.second.longFormater(date);
+          },
+          subTickLabelFormatter: (timestampInSeconds: number, spacing: number): string => {
+            const date = new Date(timestampInSeconds * 1000);
+            const mapBoundsArr = this._map.getMapBounds();
+            if (mapBoundsArr.length !== 1) {
+              return "";
+            }
+
+            // For the labels bigger than a month, if we are near the end of the month, we want to round the date up to the next month.
+            if (spacing > MONTH && date.getDate() >= 10) {
+              date.setMonth(date.getMonth() + 1, 1);
+            }
+
+            switch (spacing) {
+            case SECOND:
+              return ticksSpacingConfiguration.millisecond.shortFormatter(date);
+            case MINUTE:
+              return ticksSpacingConfiguration.second.shortFormatter(date);
+            case HOUR:
+              return ticksSpacingConfiguration.minute.shortFormatter(date);
+            case DAY:
+              return ticksSpacingConfiguration.hour.shortFormatter(date);
+            case MONTH:
+              return ticksSpacingConfiguration.day.shortFormatter(date);
+            case YEAR:
+              return ticksSpacingConfiguration.month.shortFormatter(date);
+            case 5 * YEAR:
+              return ticksSpacingConfiguration.year.shortFormatter(date);
+            default:
+              return "";
+            }
+
           },
           labelRotation: 0,
           labelStyle: {
-            alignmentBaseline: "middle",
-            textAnchor: "center",
-            offsetY: 10,
+            alignmentBaseline: "bottom",
+            textAnchor: "left",
+            offsetX: 12,
+            offsetY: tickLength,
             angle: 0,
-            fill: "rgba(255, 255, 255, 1.0)",
+            fill: LABEL_COLOR,
+            font: "18px Tahoma, Arial, sans-serif",
+            haloWidth: 0,
+            strokeWidth: 0
+          },
+          subTickLabelStyle: {
+            alignmentBaseline: "top",
+            textAnchor: "center",
+            offsetY: subTickLength,
+            angle: 0,
+            fill: SUB_TICK_LABEL_COLOR,
             font: "15px Tahoma, Arial, sans-serif",
             haloWidth: 0,
             strokeWidth: 0
           },
           spacing: {
-            minimumTickSpacing: 60,
-            mapSpacing: [1,
-                         60,
-                         5 * 60,
-                         10 * 60,
-                         30 * 60,
-                         60 * 60,
-                         4 * 60 * 60,
-                         8 * 60 * 60,
-                         24 * 60 * 60,
-                         3 * 24 * 60 * 60,
-                         7 * 24 * 60 * 60,
-                         14 * 24 * 60 * 60,
-                         31 * 24 * 60 * 60,
-                         3 * 31 * 24 * 60 * 60,
-                         6 * 31 * 24 * 60 * 60,
-                         365 * 24 * 60 * 60,
-                         5 * 365 * 24 * 60 * 60,
-                         10 * 365 * 24 * 60 * 60
-            ] //space on seconds, 5min, 10min, 30min..
+            minimumTickSpacing: 120,
+            mapSpacing: [10 * MILLISECOND,
+                         SECOND,
+                         MINUTE,
+                         HOUR,
+                         DAY,
+                         MONTH,
+                         YEAR,
+                         5 * YEAR,
+                         10 * YEAR
+            ]
           },
-          subTickLength: height / 2,
-          subTicks: 0,
+          tickLength: tickLength,
+          subTickLength: subTickLength,
+          subTicks: (mapSpacing: number, pixelSpacing: number) => {
+            let numberOfSubTicks = 1;
+            if (mapSpacing <= 1) {
+              numberOfSubTicks = 100;
+            } else if (mapSpacing <= HOUR) {
+                numberOfSubTicks = 60;
+            } else if (mapSpacing <= DAY) {
+              numberOfSubTicks =  24;
+            } else if (mapSpacing <= MONTH) {
+              numberOfSubTicks =  30;
+            } else if (mapSpacing <= YEAR) {
+              numberOfSubTicks =  12;
+            } else if (mapSpacing <= 5 * YEAR) {
+              numberOfSubTicks =  5;
+            } else if (mapSpacing <= 10 * YEAR) {
+              numberOfSubTicks =  10;
+            }
+
+            // In case the sub-ticks are too close to each other, we reduce the number of sub-ticks
+            const maxNumberOfSubTicks = pixelSpacing / MAX_PIXEL_PER_SUB_TICK;
+            while (numberOfSubTicks > maxNumberOfSubTicks) {
+              numberOfSubTicks /= 2;
+            }
+
+            return Math.ceil(numberOfSubTicks - 1);
+          },
           tickLineStyle: {
-            color: "rgba(0, 0, 0, 0)",
-            width: 0
+            color: TICK_LINE_COLOR,
+            width: 4
+          },
+          subTickLineStyle: {
+            color: SUB_TICK_LINE_COLOR,
+            width: 2
           }
         }
       }

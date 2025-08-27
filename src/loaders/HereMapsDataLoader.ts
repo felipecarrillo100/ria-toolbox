@@ -92,7 +92,6 @@ export const HereMapsDataLoader = {
           const rasterTileSetLayer = new RasterTileSetLayer(model, {
             label: layerLabel,
             layerType: (type === HereMapsType.TRAFFIC) ? LayerType.STATIC : LayerType.BASE,
-            id: (type === HereMapsType.TRAFFIC) ? "HERE_TRAFFIC" : "HERE"
           });
           if (map) {
             rasterTileSetLayer.detailFactor = map.displayScale;

@@ -23,7 +23,6 @@
 import {Feature} from "@luciad/ria/model/feature/Feature.js";
 import {FeatureModel} from "@luciad/ria/model/feature/FeatureModel.js";
 import {UrlStore} from "@luciad/ria/model/store/UrlStore.js";
-import {BingMapsTileSetModel} from "@luciad/ria/model/tileset/BingMapsTileSetModel.js";
 import {FusionTileSetModel} from "@luciad/ria/model/tileset/FusionTileSetModel.js";
 import {RasterDataType} from "@luciad/ria/model/tileset/RasterDataType.js";
 import {RasterSamplingMode} from "@luciad/ria/model/tileset/RasterSamplingMode.js";
@@ -380,31 +379,6 @@ export function createWorldLayer(): FeatureLayer {
     label: "World Countries",
     layerType: LayerType.STATIC,
     selectable: true
-  });
-}
-
-type BingMapsType = "aerial" | "road" | "AerialWithLabels" | "CanvasLight" | "CanvasDark" | "CanvasGray";
-
-export const createBingMapsLayer = async (type: BingMapsType) => {
-  const data = await fetch(`/sampleservices/bingproxy/${type}`).then(response => response.json())
-      .catch(_err => {
-        throw new Error(
-            "Something went wrong while contacting the Bing proxy. Did you configure it with a Bing Maps key?"
-        )
-      });
-
-  let resource;
-  if (data.resourceSets[0] && data.resourceSets[0].resources[0]) {
-    resource = data.resourceSets[0].resources[0];
-    resource.brandLogoUri = data.brandLogoUri;
-  } else {
-    resource = data;
-  }
-  const model = new BingMapsTileSetModel(resource);
-  return new RasterTileSetLayer(model, {
-    label: `${type} (Bing)`,
-    layerType: LayerType.BASE,
-    id: "Bing"
   });
 }
 
