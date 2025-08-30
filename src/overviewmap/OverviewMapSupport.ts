@@ -110,6 +110,7 @@ export class OverviewMapSupport {
   private readonly _handles: Handle[] = [];
   private _syncMapCenters = true;
   private _resizeObserver: ResizeObserver;
+  private _pixelCenter = createPoint(null, [0, 0]);
 
   /**
    * Creates a new instance of the OverviewMapSupport.
@@ -140,7 +141,19 @@ export class OverviewMapSupport {
 
     this.syncCameraCenterPosition();
 
-    this._resizeObserver = new ResizeObserver(() => this.syncCameraCenterPosition());
+    this._resizeObserver = new ResizeObserver((entries) => {
+      const rect = entries[0].contentRect;
+      if (this._syncMapCenters) {
+        this.recenterCameraPosition();
+      } else {
+        const {x, y} = this._pixelCenter;
+        if (x && y) {
+          this._overviewMap.mapNavigator.pan({targetLocation: this._pixelCenter})
+        }
+      }
+      this._pixelCenter.move2DToCoordinates(rect.width / 2, rect.height / 2);
+    });
+
     this._resizeObserver.observe(this._overviewMap.domNode);
 
     this._handles = [

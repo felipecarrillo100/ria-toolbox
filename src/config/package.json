@@ -1,6 +1,6 @@
 {
   "name": "@luciad/ria-toolbox-config",
-  "version": "2025.0.1",
+  "version": "2025.0.2",
   "description": "Build script and configuration files that are used across all RIA samples",
   "keywords": [],
   "author": "",
@@ -39,6 +39,6 @@
     "webpack": "5.99.6"
   },
   "peerDependencies": {
-    "@luciad/ria": "~2025.0.1"
+    "@luciad/ria": "~2025.0.2"
   }
 }

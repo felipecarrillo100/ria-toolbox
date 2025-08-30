@@ -1,6 +1,6 @@
 {
   "name": "@luciad/ria-toolbox-legend",
-  "version": "2025.0.1",
+  "version": "2025.0.2",
   "description": "Legend support tool that can be used on a LuciadRIA map",
   "keywords": [],
   "author": "",
@@ -15,14 +15,14 @@
     "./*": "./*"
   },
   "dependencies": {
-    "@luciad/ria-toolbox-core": "2025.0.1",
+    "@luciad/ria-toolbox-core": "2025.0.2",
     "html2canvas": "1.0.0"
   },
   "peerDependencies": {
-    "@luciad/ria": "~2025.0.1"
+    "@luciad/ria": "~2025.0.2"
   },
   "devDependencies": {
-    "@luciad/ria-toolbox-config": "2025.0.1",
+    "@luciad/ria-toolbox-config": "2025.0.2",
     "typescript": "5.8.3"
   }
 }

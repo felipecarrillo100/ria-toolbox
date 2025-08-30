@@ -11,8 +11,6 @@
     "types": [
       "react",
       "react-dom",
-      // needed by Recorder tool for VideoEncoder API
-      "dom-webcodecs"
     ]
   }
 }
