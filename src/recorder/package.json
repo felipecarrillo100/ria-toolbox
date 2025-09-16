@@ -1,6 +1,6 @@
 {
   "name": "@luciad/ria-toolbox-recorder",
-  "version": "2025.0.2",
+  "version": "2025.0.3",
   "description": "The Recorder tool for capturing video sequences from LuciadRIA maps",
   "keywords": [],
   "author": "",
@@ -15,15 +15,15 @@
     "./*": "./*"
   },
   "dependencies": {
-    "@luciad/ria-toolbox-core": "2025.0.2",
+    "@luciad/ria-toolbox-core": "2025.0.3",
     "html2canvas": "1.0.0",
     "mp4-muxer": "5.1.5"
   },
   "devDependencies": {
-    "@luciad/ria-toolbox-config": "2025.0.2",
+    "@luciad/ria-toolbox-config": "2025.0.3",
     "typescript": "5.8.3"
   },
   "peerDependencies": {
-    "@luciad/ria": "~2025.0.2"
+    "@luciad/ria": "~2025.0.3"
   }
 }

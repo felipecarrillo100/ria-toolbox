@@ -10,8 +10,10 @@ out. The `Gizmos` that are used to represent visually which gesture is currently
 creating a `SceneNavigationController`.
 
 Use of this controller allows the following interactions:
-- Panning orthogonally to the camera's forward direction with left mouse drags or one finger touch drags
-- Rotating around an anchor under your mouse with right mouse drags or two finger touch drags
+- Panning orthogonally to the camera’s forward direction is done with a left-mouse drag by default, 
+  or a one-finger drag on touch. The mouse button can be configured
+- Rotating around an anchor under the mouse is done with a right-mouse drag by default, or a two-finger drag on touch. 
+  The mouse button can be configured
 - Rotating around the camera eye with left + right mouse drags or the normal rotation controls with ctrl pressed, or
   with normal rotation controls if `NavigationKeysMode.CAMERA_FORWARD` is set.
 - Zooming in to and away from an anchor under your mouse with the scroll wheel or pinch gestures.
@@ -22,6 +24,8 @@ Use of this controller allows the following interactions:
 - Move vertically relative to the earth's surface with the Q and E keys (or corresponding keys if you don't have a
   QWERTY keyboard) when using `NavigationKeysMode.TANGENT_FORWARD`, or relative to the camera's up direction with
   `NavigationKeysMode.CAMERA_FORWARD`.
+
+The left/right mouse button roles for pan vs. rotation can be swapped via the `swapPanRotateButtons` option.
 
 A `Bounds` object must be passed to create an instance of `SceneNavigationController`. The navigation gestures will
 always be performed within these bounds, so it is highly recommended to provide bounds that are large enough to
@@ -61,6 +65,7 @@ const navigateController = new SceneNavigationController(gizmos, layer.model.bou
   useZoomAnimations: false, // don't use smooth animations when zooming or out
   fasterMultiplier: 2, // go two times as fast when shift is pressed
   slowerMultiplier: 0.5, // go only half as fast when space is pressed
+  swapPanRotateButtons: true, // pan: left mouse button, rotate: right mouse button
 });
 
 map.defaultController = new DefaultController({ navigateController });

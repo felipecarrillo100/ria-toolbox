@@ -167,6 +167,9 @@ export class KeyNavigationSupport {
     this._mode = navigationMode;
   }
 
+  private _onWindowBlur = () => this._downKeys.clear();
+  private _onVisibilityChange = () => this._downKeys.clear();
+
   get navigationKeysMode(): NavigationKeysMode {
     return this._mode;
   }
@@ -182,6 +185,11 @@ export class KeyNavigationSupport {
   activate(map: RIAMap) {
     this._timeStamp = performance.now();
     this._map = map;
+
+    // Attach global handlers to prevent stuck keys
+    window.addEventListener("blur", this._onWindowBlur);
+    document.addEventListener("visibilitychange", this._onVisibilityChange);
+
     this.update();
   }
 
@@ -192,6 +200,9 @@ export class KeyNavigationSupport {
   deactivate() {
     this._map = null;
     this._downKeys.clear();
+
+    window.removeEventListener("blur", this._onWindowBlur);
+    document.removeEventListener("visibilitychange", this._onVisibilityChange);
   }
 
   /**

@@ -61,15 +61,24 @@ const FRACTION_FLY_BACK = -0.9;
 
 export interface SceneNavigationControllerOptions extends NavigationKeysOptions {
   /**
-   * Whether zooming on click is allowed. Zooming on click only works when {@link useZoomAnimations} is `true`! False
-   * by default.
+   * Whether zooming on click is allowed. Zooming on click only works when {@link useZoomAnimations} is `true`.
+   * @default false.
    */
   allowZoomOnClick?: boolean;
 
   /**
-   * Whether to use animations for zooming. False by default.
+   * Whether to use animations for zooming.
+   * @default false
    */
   useZoomAnimations?: boolean;
+
+  /**
+   * Flag to swap the default mouse button actions between pan and rotation.
+   * By default, the left mouse button rotates and the right button pans.
+   * When enabled, this behavior is inverted: left pans and right rotates.
+   * @default false
+   */
+  swapPanRotateButtons?: boolean;
 }
 
 /**
@@ -120,13 +129,21 @@ export class SceneNavigationController extends Controller {
   private _anchorSupport: AnchorSupport | null = null;
   private _navigationType: NavigationType = NavigationType.NONE;
   private _keyEnabled = true;
+  private _swapPanRotateButtons = false;
 
   constructor(
     gizmos: Gizmos,
     bounds: Bounds,
-    {allowZoomOnClick = false, useZoomAnimations = false, ...keyNavigationSupportOptions}: SceneNavigationControllerOptions = {},
+    {
+      allowZoomOnClick = false,
+      useZoomAnimations = false,
+      swapPanRotateButtons = false,
+      ...keyNavigationSupportOptions
+    }: SceneNavigationControllerOptions = {},
   ) {
     super();
+
+    this._swapPanRotateButtons = swapPanRotateButtons;
 
     if (bounds.reference?.referenceType === ReferenceType.GEOCENTRIC) {
       // Geocentric bounds are not aligned to the earth surface and might give issues.
@@ -237,6 +254,7 @@ export class SceneNavigationController extends Controller {
       this._navigationType,
       this._allowedInteractions,
       this._keySupport.navigationKeysMode === NavigationKeysMode.TANGENT_FORWARD,
+      this._swapPanRotateButtons
     );
 
     if (this._navigationType !== newNavigationType) {

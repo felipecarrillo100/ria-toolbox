@@ -87,36 +87,36 @@ export class RestStore extends EventedSupport implements Store {
    *
    * @param  options options for the new store instance
    */
-  constructor(options: RestStoreConstructorOptions) {
+  constructor({target, accepts, codec}: RestStoreConstructorOptions) {
     super();
-    this._target = options.target;
+    this._target = target;
     while (this._target[this._target.length - 1] === "/") {
       this._target = this._target.substring(0, this._target.length - 1);
     }
-    this._accepts = options.accepts || "application/javascript, application/json";
-    this._codec = options.codec || new GeoJsonCodec();
+    this._accepts = accepts || "application/javascript, application/json";
+    this._codec = codec ?? new GeoJsonCodec();
   }
 
-  get(id: string | number, options: any): Promise<Feature> {
+  async get(id: string | number, options: any): Promise<Feature> {
     const headers = options || {};
     headers.Accept = this._accepts;
-    const self = this;
-    return fetch(`${this._target}/${id}${bustCache()}`, {
+    const response = await fetch(`${this._target}/${id}${bustCache()}`, {
       method: "GET",
       headers,
       credentials: "same-origin"
-    }).then(response => response.text().then(text => self._codec.decode({
-      content: text,
-      contentType: response.headers.get("Content-Type") ?? undefined
-    }))).then(cursor => {
-      if (cursor.hasNext()) {
-        return cursor.next();
-      }
-      throw new Error(`Feature with id ${id} not found in RestStore`);
     });
+    const content = await response.text();
+    const cursor = this._codec.decode({
+      content,
+      contentType: response.headers.get("Content-Type") ?? undefined
+    });
+    if (cursor.hasNext()) {
+      return cursor.next();
+    }
+    throw new Error(`Feature with id ${id} not found in RestStore`);
   }
 
-  private putImpl(feature: Feature, overwrite: boolean): FeatureId | Promise<FeatureId> {
+  private async putImpl(feature: Feature, overwrite: boolean): Promise<FeatureId> {
     const id = feature.id;
     const hasId = overwrite;
     const encodedFeature = this._codec.encode(new ArrayCursor([feature]));
@@ -128,7 +128,7 @@ export class RestStore extends EventedSupport implements Store {
     //- If the Location header is specified, we assume this contains the location for that Feature. The ID will
     //  be parsed from that Location and returned
     //- If all the above fails, the returned Promise will be rejected
-    const headers: any = {
+    const headers: Record<string, string> = {
       "Content-Type": encodedFeature.contentType,
       Accept: this._accepts
     };
@@ -144,69 +144,68 @@ export class RestStore extends EventedSupport implements Store {
       headers["If-None-Match"] = ifNoneMatch;
     }
 
-    return fetch((hasId ? (`${this._target}/${id}`) : (`${this._target}/`)) + bustCache(), {
+    const response = await fetch((hasId ? (`${this._target}/${id}`) : (`${this._target}/`)) + bustCache(), {
       method: hasId ? "PUT" : "POST",
       body: encodedFeature.content,
       headers,
       credentials: "same-origin"
-    }).then(response => {
-      if (hasId) {
-        return id;
-      }
-      return response.text().then(data => {
-        if (data && data !== "") {
-          try {
-            const contentType = response.headers.get("Content-Type");
-            const featureCursor = this._codec.decode({
-              content: data,
-              contentType: contentType ?? undefined
-            });
-            if (featureCursor.hasNext()) {
-              return featureCursor.next().id;
-            }
-          } catch (ignore) {
-          }
-          //the codec failed to parse it, assume the body just contains the ID
-          return data;
-        } else {
-          //empty body, check the location header
-          const locationHeader = response.headers.get("Location");
-          if (locationHeader) {
-            return locationHeader.substring(this._target.length - 1);
-          }
-        }
-      });
-    }).then(returnedID => {
-      feature.id = returnedID!;
-      this.emit("StoreChanged", hasId ? "update" : "add", feature, feature.id);
-      return feature.id;
     });
+
+    const data = await response.text();
+
+    let returnedID: FeatureId | null = null;
+
+    if (data && data !== "") {
+      try {
+        const contentType = response.headers.get("Content-Type");
+        const featureCursor = this._codec.decode({
+          content: data,
+          contentType: contentType ?? undefined
+        });
+        if (featureCursor.hasNext()) {
+          returnedID = featureCursor.next().id;
+        }
+      } catch (ignore) {
+      }
+      if (returnedID === null) {
+        //the codec failed to parse it, assume the body just contains the ID
+        returnedID = data;
+      }
+    } else {
+      //empty body, check the location header
+      const locationHeader = response.headers.get("Location");
+      if (locationHeader) {
+        returnedID = locationHeader.substring(this._target.length - 1);
+      }
+    }
+    feature.id = returnedID!;
+    this.emit("StoreChanged", hasId ? "update" : "add", feature, feature.id);
+    return feature.id;
   }
 
-  put(feature: Feature): FeatureId | Promise<FeatureId> {
+  async put(feature: Feature): Promise<FeatureId> {
     return this.putImpl(feature, true);
   }
 
-  add(feature: Feature): FeatureId | Promise<FeatureId> {
+  async add(feature: Feature): Promise<FeatureId> {
     return this.putImpl(feature, false);
   }
 
-  remove(id: FeatureId): boolean | Promise<boolean> {
-    const self = this;
-    return fetch(`${this._target}/${id}${bustCache()}`, {
+  async remove(id: FeatureId): Promise<boolean> {
+    await fetch(`${this._target}/${id}${bustCache()}`, {
       method: "DELETE",
       credentials: "same-origin"
-    }).then(() => {
-      self.emit("StoreChanged", "remove", undefined, id);
-      return true;
     });
+    this.emit("StoreChanged", "remove", undefined, id);
+    return true;
   }
 
-  query(query?: Record<string, string> | string, options?: RestStoreQueryOptions): Cursor | Promise<Cursor> {
-    let headers: any = {
+  async query(query?: Record<string, string> | string, options?: RestStoreQueryOptions): Promise<Cursor> {
+    let headers: Record<string, string> = {
       Accept: this._accepts
     };
     options = options || {};
+    let queryParams = "";
 
     if (options.start && options.start >= 0 || options.count && options.count >= 0) {
       headers = {
@@ -217,7 +216,7 @@ export class RestStore extends EventedSupport implements Store {
     }
 
     if (query && typeof query === "object") {
-      query = Object.keys(query).reduce((str, key, i) => {
+      queryParams = Object.keys(query).reduce((str, key, i) => {
         const delimiter = (i === 0) ? '?' : '&';
         key = encodeURIComponent(key);
         const val = encodeURIComponent((query as Record<string, string>)[key]);
@@ -225,29 +224,30 @@ export class RestStore extends EventedSupport implements Store {
       }, '');
     }
 
-    if (query === null) {
-      query = "";
+    if (queryParams === null) {
+      queryParams = "";
     }
 
     if (options && options.sort) {
-      query += (query ? "&" : "?") + "sort(";
+      queryParams += (queryParams ? "&" : "?") + "sort(";
       for (let i = 0; i < options.sort.length; i++) {
         const sort = options.sort[i];
-        query += (i > 0 ? "," : "") + (sort.descending ? '-' : '+') + encodeURIComponent(sort.attribute);
+        queryParams += (i > 0 ? "," : "") + (sort.descending ? '-' : '+') + encodeURIComponent(sort.attribute);
       }
-      query += ")";
+      queryParams += ")";
     }
 
-    const self = this;
-    return fetch(this._target + bustCache(query as string), {
+    const response = await fetch(this._target + bustCache(queryParams), {
       method: "GET",
       headers,
       credentials: "same-origin",
       signal: options.abortSignal
-    }).then(response => response.text().then(text => self._codec.decode({
+    });
+    const text = await response.text();
+    return this._codec.decode({
       content: text,
       contentType: response.headers.get("Content-Type") ?? undefined,
       reference: options?.reference
-    })));
+    });
   }
 }

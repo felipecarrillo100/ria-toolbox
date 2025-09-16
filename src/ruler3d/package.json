@@ -1,6 +1,6 @@
 {
   "name": "@luciad/ria-toolbox-ruler3d",
-  "version": "2025.0.2",
+  "version": "2025.0.3",
   "description": "3D ruler tool that can be used on a LuciadRIA map",
   "keywords": [],
   "author": "",
@@ -15,13 +15,13 @@
     "./*": "./*"
   },
   "dependencies": {
-    "@luciad/ria-toolbox-core": "2025.0.2"
+    "@luciad/ria-toolbox-core": "2025.0.3"
   },
   "devDependencies": {
-    "@luciad/ria-toolbox-config": "2025.0.2",
+    "@luciad/ria-toolbox-config": "2025.0.3",
     "typescript": "5.8.3"
   },
   "peerDependencies": {
-    "@luciad/ria": "~2025.0.2"
+    "@luciad/ria": "~2025.0.3"
   }
 }

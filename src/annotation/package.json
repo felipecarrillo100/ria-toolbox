@@ -1,6 +1,6 @@
 {
   "name": "@luciad/ria-toolbox-annotation",
-  "version": "2025.0.2",
+  "version": "2025.0.3",
   "description": "Tool that can be used to add and display annotations on a LuciadRIA map",
   "keywords": [],
   "author": "",
@@ -15,14 +15,14 @@
     "./*": "./*"
   },
   "dependencies": {
-    "@luciad/ria-toolbox-core": "2025.0.2",
-    "@luciad/ria-toolbox-ruler3d": "2025.0.2"
+    "@luciad/ria-toolbox-core": "2025.0.3",
+    "@luciad/ria-toolbox-ruler3d": "2025.0.3"
   },
   "devDependencies": {
-    "@luciad/ria-toolbox-config": "2025.0.2",
+    "@luciad/ria-toolbox-config": "2025.0.3",
     "typescript": "5.8.3"
   },
   "peerDependencies": {
-    "@luciad/ria": "~2025.0.2"
+    "@luciad/ria": "~2025.0.3"
   }
 }
