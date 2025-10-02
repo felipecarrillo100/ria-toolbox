@@ -65,7 +65,7 @@ const navigateController = new SceneNavigationController(gizmos, layer.model.bou
   useZoomAnimations: false, // don't use smooth animations when zooming or out
   fasterMultiplier: 2, // go two times as fast when shift is pressed
   slowerMultiplier: 0.5, // go only half as fast when space is pressed
-  swapPanRotateButtons: true, // pan: left mouse button, rotate: right mouse button
+  swapPanRotateButtons: true, // rotate: left mouse button, pan: right mouse button
 });
 
 map.defaultController = new DefaultController({ navigateController });

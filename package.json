@@ -1,7 +1,7 @@
 {
   "name": "ria-toolbox",
-  "version": "2025.1.03",
-  "description": "Implements an easy to integrate LuciadRIA toolbox",
+  "version": "2025.1.04",
+  "description": "Implements an easy way to integrate LuciadRIA toolbox",
   "files": [
     "libs/"
   ],

@@ -69,8 +69,8 @@ function getTouchesOrButtonsPressed(domEvent: MouseEvent | TouchEvent) {
  *    {@link NavigationType.FIRST_PERSON_ROTATION} will still only get returned
  *    if it has been added to the `allowedNavigationTypes` array.
  * @param swapPanRotateButtons Optional flag to swap the default mouse button actions between pan and rotation.
- *    By default, the left mouse button rotates and the right button pans.
- *    When enabled, this behavior is inverted: left pans and right rotates.
+ *    By default, the left mouse button pans and the right button rotates.
+ *    When enabled, this behavior is inverted: left rotates and right pans.
  */
 export function getNavigationType(
   {type, domEvent}: GestureEvent,
@@ -112,10 +112,10 @@ export function getNavigationType(
                          : NavigationType.ROTATION;
     switch (getTouchesOrButtonsPressed(domEvent as MouseEvent | TouchEvent)) {
       case "left":
-        newNavigationType = swapPanRotateButtons ? NavigationType.PAN : rotationType;
+        newNavigationType = !swapPanRotateButtons ? NavigationType.PAN : rotationType;
         break;
       case "right":
-        newNavigationType = swapPanRotateButtons ? rotationType : NavigationType.PAN;
+        newNavigationType = !swapPanRotateButtons ? rotationType : NavigationType.PAN;
         break;
       case "both":
         newNavigationType = NavigationType.FIRST_PERSON_ROTATION;
